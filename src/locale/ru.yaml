@@ -27,10 +27,10 @@ group:
     Доступные подписки на таги:
 
     <%for(var i = 0; i < tags.length; i++) {%>
-      [Подписка на тег #<%=tags[i].tag%>](<%=tags[i].link%>)
+      [Подписка на #<%=tags[i].tag%>](<%=tags[i].link%>)
     <%}%>
   tag_added: |
-    [Подписка на тег #<%=tag%>](<%=link%>)
+    [Подписка на #<%=tag%>](<%=link%>)
 
 
 user:
