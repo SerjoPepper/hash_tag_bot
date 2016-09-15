@@ -1,0 +1,60 @@
+common:
+  done: ':white_check_mark: Готово'
+
+group:
+  no_tags: Пока никаких тагов нет
+  start: |
+    Просто пишите сообщения с тагами, чтобы я их добавил.
+    Просмотр всех подписок на таги:
+    /show_tags
+  help: |
+    Установить тихий режим
+    /silent__on
+
+    Отключить тихий режим
+    /silent__off
+
+    Отключить фильтр тагов
+    /disable_filter
+
+    Установить фильтр тагов, которые нужно записывать
+    /enable_filter таг1 таг2 таг3
+
+    <%if(forecast.current){%>
+    Текущее значение фильтра тагов: <%=filter%>
+    <%}%>
+  tags: |
+    Доступные подписки на таги:
+
+    <%for(var i = 0; i < tags.length; i++) {%>
+      [Подписка на тег #<%=tags[i].tag%>](<%=tags[i].link%>)
+    <%}%>
+  tag_added: |
+    [Подписка на тег #<%=tag%>](<%=link%>)
+
+
+user:
+  start: |
+    "<%=user.first_name%>, привет. Я бот для подписок на таги, используй ссылки из групп чтобы добавить подписки."
+  subscribe: |
+    Вы успешно подписались на #<%=chatTag.tag%>
+    Все ваши подписки /subscriptions
+  group: |
+    Добавить бота в вашу группу, чтобы собирать таги:
+    https://telegram.me/hash_tag_bot?startgroup=hello
+  subscriptions: |
+    <%for(var i = 0; i < chatTags.length; i++) {%>
+
+      <%=chatTags[i].chat.username ? '@' + chatTags[i].chat.username + ' ' + chatTags[i].chat.title : chatTags[i].chat.title %>
+      #<%=chatTags[i].tag%>
+      Удалить - /remove__<%=chatTags[i]._id%>
+      Последние 10 - /show__10__<%=chatTags[i]._id%>
+      Последние 25 - /show__25__<%=chatTags[i]._id%>
+      Последние 50 - /show__50__<%=chatTags[i]._id%>
+
+    <%}%>
+
+
+keyboard:
+  subscriptions: 'Ваши подписки'
+  group: 'Добавить в группу'

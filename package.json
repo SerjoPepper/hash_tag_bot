@@ -1,0 +1,19 @@
+{
+  "name": "hash_tag_bot",
+  "version": "1.0.0",
+  "description": "This bot helps you manage and search tags in telegram",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sergey Pereskokov serjopepper@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+      "bluebird": "2.9.24",
+      "bot-brother": "2.x",
+      "coffee-script": "^1.9.3",
+      "js-yaml": "^3.6.1",
+      "lodash": "^3.10.1",
+      "mongoose": "4.x"
+    }
+}

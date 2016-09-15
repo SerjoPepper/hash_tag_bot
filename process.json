@@ -1,0 +1,15 @@
+{
+  "apps": [{
+    "name": "hash_tag_bot",
+    "script": "src/index.coffee",
+    "args": ["--interpreter", "coffee"],
+    "node_args" : ["--nodejs", "--harmony"],
+    "error_file": "hash_tag_bot.pm.error.log",
+    "out_file": "hash_tag_bot.pm.log",
+    "max_restart_memory": "8G",
+    "log_date_format"  : "YYYY-MM-DD HH:mm Z",
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }]
+}
