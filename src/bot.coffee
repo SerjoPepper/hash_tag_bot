@@ -115,7 +115,7 @@ bot.command('subscriptions').invoke (ctx) ->
   for chatTag in ctx.user.subscriptions
     yield chatTag.populate('chat').execPopulate()
   ctx.data.chatTags = ctx.user.subscriptions
-  yield ctx.sendMessage('user.subscriptions', msgOptions)
+  yield ctx.sendMessage('user.subscriptions')
 
 bot.command('add_to_group').invoke (ctx) ->
   return unless ctx.private
