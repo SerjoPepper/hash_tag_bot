@@ -31,7 +31,7 @@ _.extend schema.methods, {
       if (!chatTag)
         chatTag = yield ChatTag.create({ chat: @, tag })
       chatTag.messages.push(messageId)
-      chatTag.messages = chatTag.messages.slice(-50)
+      chatTag.messages = _.uniq(chatTag.messages).slice(-50)
       yield chatTag.save()
       chatTags.push(chatTag)
     chatTags

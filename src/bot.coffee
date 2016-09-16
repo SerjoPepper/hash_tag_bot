@@ -5,6 +5,7 @@ _ = require 'lodash'
 bb = require 'bot-brother'
 
 msgOptions = { parse_mode: 'Markdown', disable_web_page_preview: true }
+cleanSpaces = (text) -> text.replace(/^\s*[\r\n]/gm, '').replace(/^\s+/gm, '')
 
 bot = module.exports = bb({
   key: config.bot.key
@@ -15,6 +16,21 @@ bot = module.exports = bb({
 .texts(locale.ru, {locale: 'ru'})
 .texts(locale.ru)
 
+bot.api.on 'edited_message', (message) ->
+  text = message.text
+  isPrivate = message.chat.type is 'private'
+  Chat = mongoose.model('Chat')
+  User = mongoose.model('User')
+  return if !text || isPrivate
+  tags =  ctx.answer?.match(/#[^\s]+/ig)
+  if tags?.length > 0
+    chat = yield Chat.findOneAsync(id: chat.id)
+    return unless chat
+    chatTags = yield chat.addTags(tags, message.message_id)
+    for tag in chatTags
+      users = yield User.findAsync(subscriptions: tag._id)
+      for user in users
+        try yield bot.api.forwardMessage(user.id, message.chat.id, message.message_id)
 
 bot.use 'before', (ctx) ->
   chat = ctx.meta.chat
@@ -29,7 +45,7 @@ bot.use 'before', (ctx) ->
       [{ 'keyboard.group': go: 'add_to_group' }]
     ])
   if !ctx.private and ctx.meta.user.id != ctx.bot.id
-    tags = ctx.answer?.match(/#[^\s]+/ig)
+    tags =  ctx.answer?.match(/#[^\s]+/ig)
     if tags?.length > 0
       chat = yield Chat.findOneAsync(id: chat.id)
       unless chat
@@ -85,7 +101,6 @@ bot.command('start').invoke (ctx) ->
   else
     yield ctx.sendMessage('group.start')
 
-
 bot.command('show_tags').invoke (ctx) ->
   return if ctx.private
   chatTags = yield mongoose.model('ChatTag').findAsync(chat: ctx.chat._id)
@@ -95,7 +110,7 @@ bot.command('show_tags').invoke (ctx) ->
     ctx.data.tags = chatTags.map (chatTag) ->
       tag: chatTag.tag
       link: "telegram.me/#{config.bot.name}?start=#{chatTag._id}"
-    yield ctx.sendMessage('group.tags', msgOptions)
+    yield ctx.sendMessage(cleanSpaces(ctx.render('group.tags')), msgOptions)
 
 # TODO
 bot.command('silent').invoke (ctx) ->
