@@ -35,17 +35,17 @@ messageHandler = co.wrap (message, isEdited) ->
       yield chat.saveAsync()
     chatTags = yield chat.addTags(tags, message.message_id)
     unless isEdited
-      message = ''
+      text = ''
       for chatTag in chatTags
         tag = chatTag.tag
         link = "telegram.me/#{config.bot.name}?start=#{chatTag._id}"
-        message += "[Подписка на ##{tag}](#{link})\n"
-      yield bot.api.sendMessage(chat.id, cleanSpaces(message), msgOptions)
+        text += "[Подписка на ##{tag}](#{link})\n"
+      yield bot.api.sendMessage(chat.id, cleanSpaces(text), msgOptions)
 
     for tag in chatTags
       users = yield User.findAsync(subscriptions: tag._id)
       for user in users
-        try yield bot.api.forwardMessage(user.id, message.chat.id, message.message_id)
+        try yield bot.api.forwardMessage(user.id, chat.id, message.message_id)
 
 bot.api.on 'edited_message', (message) -> messageHandler(message, true)
 bot.api.on 'message', (message) -> messageHandler(message, false)
