@@ -102,16 +102,16 @@ bot.command('start').invoke (ctx) ->
   else
     yield ctx.sendMessage('group.start')
 
-bot.command('show_tags').invoke (ctx) ->
-  return if ctx.private
-  chatTags = yield mongoose.model('ChatTag').findAsync(chat: ctx.chat._id)
-  unless chatTags?.length
-    yield ctx.sendMessage('group.no_tags')
-  else
-    ctx.data.tags = chatTags.map (chatTag) ->
-      tag: chatTag.tag
-      link: "telegram.me/#{config.bot.name}?start=#{chatTag._id}"
-    yield ctx.sendMessage(cleanSpaces(ctx.render('group.tags')), msgOptions)
+# bot.command('show_tags').invoke (ctx) ->
+#   return if ctx.private
+#   chatTags = yield mongoose.model('ChatTag').findAsync(chat: ctx.chat._id)
+#   unless chatTags?.length
+#     yield ctx.sendMessage('group.no_tags')
+#   else
+#     ctx.data.tags = chatTags.map (chatTag) ->
+#       tag: chatTag.tag
+#       link: "telegram.me/#{config.bot.name}?start=#{chatTag._id}"
+#     yield ctx.sendMessage(cleanSpaces(ctx.render('group.tags')), msgOptions)
 
 # TODO
 bot.command('silent').invoke (ctx) ->
