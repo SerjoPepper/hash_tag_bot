@@ -30,6 +30,7 @@ _.extend schema.methods, {
       chatTag = yield ChatTag.findOne({ chat: @_id, tag })
       if (!chatTag)
         chatTag = yield ChatTag.create({ chat: @, tag })
+      continue if _.find(chatTag.messages, (m) -> m is messageId)
       chatTag.messages.push(messageId)
       chatTag.messages = _.uniq(chatTag.messages).slice(-50)
       yield chatTag.save()
