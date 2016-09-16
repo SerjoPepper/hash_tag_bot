@@ -22,7 +22,7 @@ bot.api.on 'edited_message', (message) ->
   Chat = mongoose.model('Chat')
   User = mongoose.model('User')
   return if !text || isPrivate
-  tags =  ctx.answer?.match(/#[^\s]+/ig)
+  tags =  text.match(/#[^\s]+/ig)
   if tags?.length > 0
     chat = yield Chat.findOneAsync(id: message.chat.id)
     return unless chat
