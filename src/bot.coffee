@@ -3,6 +3,7 @@ locale = require './locale'
 mongoose = require 'mongoose'
 _ = require 'lodash'
 bb = require 'bot-brother'
+co = require 'co'
 
 msgOptions = { parse_mode: 'Markdown', disable_web_page_preview: true }
 cleanSpaces = (text) -> text.replace(/^\s*[\r\n]/gm, '').replace(/^\s+/gm, '')
@@ -16,7 +17,7 @@ bot = module.exports = bb({
 .texts(locale.ru, {locale: 'ru'})
 .texts(locale.ru)
 
-bot.api.on 'edited_message', (message) ->
+bot.api.on 'edited_message', co.wrap (message) ->
   text = message.text
   isPrivate = message.chat.type is 'private'
   Chat = mongoose.model('Chat')
