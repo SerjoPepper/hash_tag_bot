@@ -17,21 +17,35 @@ bot = module.exports = bb({
 .texts(locale.ru, {locale: 'ru'})
 .texts(locale.ru)
 
-bot.api.on 'edited_message', co.wrap (message) ->
+messageHandler = co.wrap (message, isEdited) ->
   text = message.text
-  isPrivate = message.chat.type is 'private'
+  chat = message.chat
+  isPrivate = chat.type is 'private'
   Chat = mongoose.model('Chat')
   User = mongoose.model('User')
-  return if !text || isPrivate
+  return if !text || isPrivate || chat.user.id is bot.id
   tags =  text.match(/#[^\s]+/ig)
-  if tags?.length > 0
+  if tags?.length > 0 && !/^\s*#[^\s]+\s*$/ig.test(text)
     chat = yield Chat.findOneAsync(id: message.chat.id)
-    return unless chat
+    chatData = { title: chat.title, id: chat.id, username: chat.username }
+    unless chat
+      chat = yield Chat.createAsync(chatData)
+    else
+      _.extend(chat, chatData)
+      yield chat.saveAsync()
     chatTags = yield chat.addTags(tags, message.message_id)
+    unless isEdited
+      for chatTag in chatTags
+        tag = chatTag.tag
+        link = "telegram.me/#{config.bot.name}?start=#{chatTag._id}"
+        yield bot.api.sendMessage(chat.id, """[Подписаться на #{tag}](#{link})""", msgOptions)
     for tag in chatTags
       users = yield User.findAsync(subscriptions: tag._id)
       for user in users
         try yield bot.api.forwardMessage(user.id, message.chat.id, message.message_id)
+
+bot.api.on 'edited_message', (message) -> messageHandler(message, true)
+bot.api.on 'message', (message) -> messageHandler(message, false)
 
 bot.use 'before', (ctx) ->
   chat = ctx.meta.chat
@@ -45,23 +59,6 @@ bot.use 'before', (ctx) ->
       [{ 'keyboard.subscriptions': go: 'subscriptions' }]
       [{ 'keyboard.group': go: 'add_to_group' }]
     ])
-  if !ctx.private and ctx.meta.user.id != ctx.bot.id
-    tags =  ctx.answer?.match(/#[^\s]+/ig)
-    if tags?.length > 0
-      chat = yield Chat.findOneAsync(id: chat.id)
-      unless chat
-        chat = yield Chat.createAsync({ title: chat.title, id: chat.id, username: chat.username })
-      chatTags = yield chat.addTags(tags, ctx.message.message_id)
-      if !chat.settings.silent && chatTags?.length
-        for chatTag in chatTags
-          ctx.data.tag = chatTag.tag
-          ctx.data.link = "telegram.me/#{config.bot.name}?start=#{chatTag._id}"
-          yield ctx.sendMessage('group.tag_added', msgOptions)
-      for tag in chatTags
-        users = yield User.findAsync(subscriptions: tag._id)
-        for user in users
-          try yield ctx.bot.api.forwardMessage(user.id, chat.id, ctx.message.message_id)
-          # TODO forward message
 
 
 bot.use 'beforeInvoke', (ctx) ->
