@@ -24,7 +24,7 @@ bot.api.on 'edited_message', (message) ->
   return if !text || isPrivate
   tags =  ctx.answer?.match(/#[^\s]+/ig)
   if tags?.length > 0
-    chat = yield Chat.findOneAsync(id: chat.id)
+    chat = yield Chat.findOneAsync(id: message.chat.id)
     return unless chat
     chatTags = yield chat.addTags(tags, message.message_id)
     for tag in chatTags
