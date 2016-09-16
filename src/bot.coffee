@@ -23,7 +23,7 @@ messageHandler = co.wrap (message, isEdited) ->
   isPrivate = chat.type is 'private'
   Chat = mongoose.model('Chat')
   User = mongoose.model('User')
-  return if !text || isPrivate || message.user.id is bot.id
+  return if !text || isPrivate || message.from.id is bot.id
   tags =  text.match(/#[^\s]+/ig)
   if tags?.length > 0 && !/^\s*#[^\s]+\s*$/ig.test(text)
     chat = yield Chat.findOneAsync(id: message.chat.id)
