@@ -5,6 +5,10 @@ _ = require 'lodash'
 bb = require 'bot-brother'
 co = require 'co'
 
+# кол-во сообщений, по прошествии которых, постим кнопку подписки
+msgThrottleCount = 5
+msgThrottleMemory = {}
+
 msgOptions = { parse_mode: 'Markdown', disable_web_page_preview: true }
 cleanSpaces = (text) -> text.replace(/^\s*[\r\n]/gm, '').replace(/^\s+/gm, '')
 
@@ -34,18 +38,21 @@ messageHandler = co.wrap (message, isEdited) ->
       _.extend(chat, chatData)
       yield chat.saveAsync()
     chatTags = yield chat.addTags(tags, message.message_id)
-    unless isEdited
+    if !isEdited and (!msgThrottleMemory[chat.id] || msgThrottleMemory[chat.id] > msgThrottleCount)
       text = ''
       for chatTag in chatTags
         tag = chatTag.tag
         link = "telegram.me/#{config.bot.name}?start=#{chatTag._id}"
         text += "[Подписка на ##{tag}](#{link})\n"
       yield bot.api.sendMessage(chat.id, cleanSpaces(text), msgOptions)
+      msgThrottleMemory[chat.id] = 1
 
     for tag in chatTags
       users = yield User.findAsync(subscriptions: tag._id)
       for user in users
         try yield bot.api.forwardMessage(user.id, chat.id, message.message_id)
+  else if !isEdited and msgThrottleMemory[chat.id]
+    msgThrottleMemory[chat.id]++
 
 bot.api.on 'edited_message', (message) -> messageHandler(message, true)
 bot.api.on 'message', (message) -> messageHandler(message, false)
