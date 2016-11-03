@@ -4,7 +4,7 @@ mongoose = require 'mongoose'
 _ = require 'lodash'
 bb = require 'bot-brother'
 co = require 'co'
-tagRgx = /(?:[^a-zа-я0-9_-]|^)+(#[a-zа-я0-9_-]+)(?:[^a-zа-я0-9_]|$)/
+tagRgx = "(?:[^a-zа-я0-9_-]|^)+(#[a-zа-я0-9_-]+)(?:[^a-zа-я0-9_]|$)"
 
 # кол-во сообщений, по прошествии которых, постим кнопку подписки
 msgThrottleCount = 5
