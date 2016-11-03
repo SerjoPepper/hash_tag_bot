@@ -4,6 +4,7 @@ mongoose = require 'mongoose'
 _ = require 'lodash'
 bb = require 'bot-brother'
 co = require 'co'
+tagRgx = /(?:[^a-zа-я0-9_-]|^)+(#[a-zа-я0-9_-]+)(?:[^a-zа-я0-9_]|$)/
 
 # кол-во сообщений, по прошествии которых, постим кнопку подписки
 msgThrottleCount = 5
@@ -28,7 +29,7 @@ messageHandler = co.wrap (message, isEdited) ->
   Chat = mongoose.model('Chat')
   User = mongoose.model('User')
   return if !text || isPrivate || message.from.id is bot.id
-  tags =  text.match(/#[^\s]+/ig)
+  tags =  text.match(new RegExp(tagRgx, 'ig'))?.map((s) -> s.match(new RegExp(tagRgx, 'i'))[1])
   if tags?.length > 0 && !/^\s*#[^\s]+\s*$/ig.test(text)
     chat = yield Chat.findOneAsync(id: message.chat.id)
     chatData = { title: chat.title, id: chat.id, username: chat.username }
